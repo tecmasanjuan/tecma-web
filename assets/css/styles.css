@@ -39,6 +39,7 @@ h3 { margin: 0 0 .75rem; font-size: 1.25rem; }
 .button { display: inline-block; padding: .8rem 1.15rem; border-radius: .35rem; color: #fff; background: var(--blue); font-weight: 700; text-decoration: none; }
 .button:hover { color: #fff; background: var(--blue-dark); }
 .section { padding: clamp(4rem, 8vw, 6.5rem) 0; }
+.section[id] { scroll-margin-top: 10rem; }
 .section-tint { background: var(--surface); }
 .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2rem; }
 .service-card { padding: 1.6rem; border: 1px solid var(--border); border-radius: .8rem; background: var(--white); }
