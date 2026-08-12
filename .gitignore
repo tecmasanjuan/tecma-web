@@ -1,0 +1,6 @@
+# Material legacy descartado: los assets seleccionados permanecen versionados.
+legacy/sitio-actual/web/*.html
+legacy/sitio-actual/web/*.php
+legacy/sitio-actual/web/css/
+legacy/sitio-actual/web/php/
+legacy/sitio-actual/web/img/Thumbs.db

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="TeCMA San Juan: servicios para la gestión responsable de residuos.">
+    <title>TeCMA San Juan</title>
+    <link rel="icon" href="assets/img/favicon.png" type="image/png">
+    <link rel="stylesheet" href="assets/css/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <header class="site-header">
+      <div class="container header-content">
+        <a class="brand" href="#inicio" aria-label="TeCMA San Juan, inicio">
+          <img src="assets/img/tecma-logo.png" alt="TeCMA San Juan S.A.">
+        </a>
+        <nav aria-label="Navegación principal">
+          <ul class="nav-list">
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#empresa">Empresa</a></li>
+            <li><a href="#servicios">Servicios</a></li>
+            <li><a href="#pago">Pago</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido">
+      <section class="hero" id="inicio" aria-labelledby="hero-title">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">TeCMA San Juan</p>
+            <h1 id="hero-title">Una apuesta al futuro...</h1>
+            <p class="hero-text">Servicios para una gestión responsable de residuos, con una mirada puesta en el cuidado del ambiente.</p>
+            <a class="button" href="#servicios">Conocé nuestros servicios</a>
+          </div>
+          <img class="hero-image" src="assets/img/tecma-instalaciones.jpg" alt="Instalaciones y vehículos de TeCMA San Juan">
+        </div>
+      </section>
+
+      <section class="section" id="empresa" aria-labelledby="empresa-title">
+        <div class="container narrow">
+          <p class="eyebrow">Empresa</p>
+          <h2 id="empresa-title">Compromiso con el ambiente</h2>
+          <p>TeCMA San Juan brinda servicios vinculados a la gestión de residuos para acompañar a organizaciones que buscan operar de forma responsable.</p>
+        </div>
+      </section>
+
+      <section class="section section-tint" id="servicios" aria-labelledby="servicios-title">
+        <div class="container">
+          <p class="eyebrow">Servicios</p>
+          <h2 id="servicios-title">Soluciones para la gestión de residuos</h2>
+          <div class="service-grid">
+            <article class="service-card">
+              <span class="service-number" aria-hidden="true">01</span>
+              <h3>Recolección y transporte</h3>
+              <p>Coordinación de la recolección y el traslado de residuos según las necesidades de cada operación.</p>
+            </article>
+            <article class="service-card">
+              <span class="service-number" aria-hidden="true">02</span>
+              <h3>Tratamiento de residuos</h3>
+              <p>Servicios orientados al tratamiento y la disposición final responsable de residuos.</p>
+            </article>
+            <article class="service-card">
+              <span class="service-number" aria-hidden="true">03</span>
+              <h3>Servicios relacionados</h3>
+              <p>Atención para residuos patogénicos y peligrosos, con alternativas de gestión asociadas.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section payment" id="pago" aria-labelledby="pago-title">
+        <div class="container payment-grid">
+          <div>
+            <p class="eyebrow">Pago con Mercado Pago</p>
+            <h2 id="pago-title">Pagá escaneando el código QR</h2>
+            <p>Accedé a un beneficio del <strong>5 %</strong> en tu próxima factura.</p>
+            <ul class="payment-rules">
+              <li>El descuento aplica únicamente a pagos realizados entre el día 1 y el día 15 inclusive de cada mes.</li>
+              <li>El descuento se aplica sobre la próxima factura y está sujeto a validación administrativa.</li>
+            </ul>
+          </div>
+          <figure class="qr-card">
+            <img src="assets/img/mercado-pago-qr.jpg" alt="Código QR para pago con Mercado Pago">
+            <figcaption>Escaneá el QR desde la app de Mercado Pago.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section section-tint" id="contacto" aria-labelledby="contacto-title">
+        <div class="container contact-grid">
+          <div>
+            <p class="eyebrow">Contacto</p>
+            <h2 id="contacto-title">Estamos para ayudarte</h2>
+            <address>
+              <p>Calle Proyectada K, Lote 56<br>Parque Industrial, Chimbas<br>San Juan, Argentina</p>
+              <p><a href="tel:+5492645049668">+54 9 264 504 9668</a><br><a href="mailto:contacto@tecmasanjuan.com">contacto@tecmasanjuan.com</a></p>
+            </address>
+          </div>
+          <form class="contact-form" aria-describedby="form-status">
+            <fieldset disabled>
+              <legend>Formulario de contacto</legend>
+              <label for="nombre">Nombre</label>
+              <input id="nombre" name="nombre" type="text" autocomplete="name">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email">
+              <label for="mensaje">Mensaje</label>
+              <textarea id="mensaje" name="mensaje" rows="4"></textarea>
+              <button type="submit">Enviar consulta</button>
+            </fieldset>
+            <p id="form-status" class="form-status">Formulario preparado para una integración posterior. El envío aún no está habilitado.</p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-content">
+        <img src="assets/img/tecma-logo.png" alt="TeCMA San Juan S.A.">
+        <p>© <span id="year">2026</span> TeCMA San Juan. Todos los derechos reservados.</p>
+        <p>Desarrollado por Nexar Sistemas</p>
+      </div>
+    </footer>
+  </body>
+</html>
