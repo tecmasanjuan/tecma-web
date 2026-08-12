@@ -38,7 +38,6 @@ h3 { margin: 0 0 .75rem; font-size: 1.25rem; }
 .hero-image { width: 100%; min-height: 320px; object-fit: cover; border-radius: 1.25rem; box-shadow: 0 20px 45px rgba(24,53,79,.2); }
 .button { display: inline-block; padding: .8rem 1.15rem; border-radius: .35rem; color: #fff; background: var(--blue); font-weight: 700; text-decoration: none; }
 .button:hover { color: #fff; background: var(--blue-dark); }
-.provisional { margin: 1rem 0 0; color: var(--muted); font-size: .88rem; font-style: italic; }
 .section { padding: clamp(4rem, 8vw, 6.5rem) 0; }
 .section-tint { background: var(--surface); }
 .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2rem; }
@@ -49,7 +48,6 @@ h3 { margin: 0 0 .75rem; font-size: 1.25rem; }
 .payment h2 { color: #fff; }
 .payment .eyebrow { color: #b9df78; }
 .payment-rules { padding-left: 1.2rem; }
-.payment .provisional { color: #dce9ee; }
 .qr-card { max-width: 310px; margin: 0 auto; padding: 1rem; border-radius: 1rem; color: var(--ink); background: #fff; text-align: center; box-shadow: 0 12px 30px rgba(0,0,0,.18); }
 .qr-card img { width: 100%; border-radius: .55rem; }
 .qr-card figcaption { padding: .85rem .4rem .1rem; font-size: .9rem; }
