@@ -65,6 +65,9 @@ button:disabled, input:disabled, textarea:disabled { opacity: .65; cursor: not-a
 .footer-content { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2rem; }
 .footer-content img { width: 112px; }
 .footer-content p { margin: 0; font-size: .9rem; }
+.site-footer a[href="https://nexarsistemas.com.ar"] { color: var(--white); }
+.site-footer a[href="https://nexarsistemas.com.ar"]:hover { color: #e4e8df; }
+.site-footer a[href="https://nexarsistemas.com.ar"]:focus-visible { outline-color: var(--white); }
 .whatsapp-button { position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 4; display: grid; width: 3.5rem; height: 3.5rem; place-items: center; border-radius: 50%; color: #fff; background: var(--green-dark); box-shadow: 0 8px 20px rgba(0,0,0,.22); }
 .whatsapp-button:hover { color: #fff; background: var(--green); }
 .whatsapp-button svg { width: 2rem; height: 2rem; }
