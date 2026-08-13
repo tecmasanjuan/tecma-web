@@ -1,3 +1,26 @@
+# Configuracion local y secretos
+.env
+.env.*
+!.env.example
+!.env.*.example
+.envrc
+.direnv/
+.netlify/
+
+# Credenciales, certificados y archivos locales temporales
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.local
+*.log
+*.tmp
+*.bak
+*.swp
+Thumbs.db
+.DS_Store
+
 # Material legacy descartado: los assets seleccionados permanecen versionados.
 legacy/sitio-actual/web/*.html
 legacy/sitio-actual/web/*.php
