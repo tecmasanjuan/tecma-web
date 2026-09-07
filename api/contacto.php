@@ -45,7 +45,7 @@ function limpiar(string $valor): string
     return trim(preg_replace('/[\x00-\x1F\x7F]/u', '', $valor) ?? '');
 }
 
-if ($_SERVER['REQUEST_METHOD'] ?? '' !== 'POST') {
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     responder(405, ['ok' => false, 'message' => 'Método no permitido.']);
 }
 
