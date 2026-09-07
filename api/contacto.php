@@ -40,8 +40,13 @@ function configuracion(): array
     return $config;
 }
 
-function limpiar(string $valor): string
+function limpiar(string $valor, bool $preservarSaltos = false): string
 {
+    if ($preservarSaltos) {
+        $valor = str_replace(["\r\n", "\r"], "\n", $valor);
+        return trim(preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $valor) ?? '');
+    }
+
     return trim(preg_replace('/[\x00-\x1F\x7F]/u', '', $valor) ?? '');
 }
 
@@ -67,7 +72,7 @@ if (limpiar((string) ($datos['sitio_web'] ?? '')) !== '') {
 $nombre = limpiar((string) ($datos['nombre'] ?? ''));
 $email = strtolower(limpiar((string) ($datos['email'] ?? '')));
 $telefono = limpiar((string) ($datos['telefono'] ?? ''));
-$mensaje = limpiar((string) ($datos['mensaje'] ?? ''));
+$mensaje = limpiar((string) ($datos['mensaje'] ?? ''), true);
 
 if ($nombre === '' || $email === '' || $mensaje === '') {
     responder(422, ['ok' => false, 'message' => 'Completá nombre, email y mensaje.']);
