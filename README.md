@@ -54,13 +54,13 @@ El proyecto dispone de una landing institucional funcional.
 * información de contacto;
 * acceso directo mediante WhatsApp;
 * enlaces externos seguros;
+* formulario de contacto con backend PHP, persistencia en Supabase y notificación por Resend;
 * estructura preparada para futuras ampliaciones.
 
 ### Próximas etapas evaluadas
 
 Entre las funcionalidades consideradas para versiones posteriores se encuentran:
 
-* formulario de contacto operativo;
 * suscripción de generadores a novedades;
 * validación de datos de generadores;
 * envío de comunicaciones por correo electrónico;
@@ -85,7 +85,8 @@ La versión actual prioriza una arquitectura sencilla, mantenible y con bajo cos
 
 ### Infraestructura
 
-El proyecto puede desplegarse como sitio web estático.
+La landing puede servirse como sitio estático, pero el formulario requiere un hosting con PHP y
+cURL para ejecutar `api/contacto.php`.
 
 La infraestructura de producción debe mantenerse separada del código fuente siempre que implique credenciales, secretos o configuración sensible.
 
@@ -97,7 +98,11 @@ La infraestructura de producción debe mantenerse separada del código fuente si
 tecma-web/
 ├── assets/
 │   ├── css/
+│   ├── js/
 │   └── img/
+│
+├── api/
+│   └── contacto.php
 │
 ├── docs/
 │   ├── alcance-mvp.md
@@ -108,6 +113,10 @@ tecma-web/
 │   ├── legado-sitio-actual.md
 │   ├── pago-qr-mercadopago.md
 │   └── suscripcion-generadores.md
+│
+├── supabase/
+│   └── migrations/
+│       └── 20260907200000_create_consultas_web.sql
 │
 ├── legacy/
 │
@@ -164,7 +173,7 @@ Registro de decisiones funcionales y técnicas relevantes.
 
 [`docs/formulario-contacto.md`](docs/formulario-contacto.md)
 
-Diseño y alcance previsto del formulario de contacto.
+Implementación, configuración y prueba del formulario de contacto.
 
 ### Funcionalidades futuras
 

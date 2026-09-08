@@ -165,19 +165,23 @@
               </p>
             </address>
           </div>
-          <form class="contact-form" aria-describedby="form-status">
-            <fieldset disabled>
+          <form class="contact-form" action="api/contacto.php" method="post" aria-describedby="form-status">
+            <fieldset>
               <legend>Formulario de contacto</legend>
               <label for="nombre">Nombre</label>
-              <input id="nombre" name="nombre" type="text" autocomplete="name" />
+              <input id="nombre" name="nombre" type="text" autocomplete="name" required maxlength="120" />
               <label for="email">Email</label>
-              <input id="email" name="email" type="email" autocomplete="email" />
+              <input id="email" name="email" type="email" autocomplete="email" required maxlength="254" />
               <label for="mensaje">Mensaje</label>
-              <textarea id="mensaje" name="mensaje" rows="4"></textarea>
+              <textarea id="mensaje" name="mensaje" rows="4" required maxlength="5000"></textarea>
+              <div class="visually-hidden" aria-hidden="true">
+                <label for="sitio-web">Dejá este campo vacío</label>
+                <input id="sitio-web" name="sitio_web" type="text" tabindex="-1" autocomplete="off" />
+              </div>
               <button type="submit">Enviar consulta</button>
             </fieldset>
-            <p id="form-status" class="form-status">
-              Formulario preparado para una integración posterior. El envío aún no está habilitado.
+            <p id="form-status" class="form-status" role="status" aria-live="polite">
+              Completá el formulario y te responderemos a la brevedad.
             </p>
           </form>
         </div>
@@ -212,5 +216,6 @@
         </p>
       </div>
     </footer>
+    <script src="assets/js/contacto.js" defer></script>
   </body>
 </html>
