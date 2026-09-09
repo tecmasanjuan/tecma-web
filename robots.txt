@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /api/
+Disallow: /docs/
+Disallow: /legacy/
+Disallow: /supabase/
+
+Sitemap: https://www.tecmasanjuan.com.ar/sitemap.xml
