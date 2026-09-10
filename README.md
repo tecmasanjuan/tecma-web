@@ -118,6 +118,11 @@ tecma-web/
 │   └── migrations/
 │       └── 20260907200000_create_consultas_web.sql
 │
+├── solicitudes/
+│   ├── includes/
+│   ├── retiro/
+│   └── assets/
+│
 ├── legacy/
 │
 ├── .gitignore
@@ -204,6 +209,12 @@ Documentación relacionada con el QR de Mercado Pago y las condiciones comercial
 [`docs/suscripcion-generadores.md`](docs/suscripcion-generadores.md)
 
 Diseño preliminar de una futura funcionalidad de suscripción a comunicaciones.
+
+### Solicitudes
+
+[`docs/solicitudes.md`](docs/solicitudes.md)
+
+Base independiente y protegida para trámites de clientes y generadores autorizados.
 
 ---
 
