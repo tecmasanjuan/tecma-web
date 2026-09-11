@@ -1,0 +1,69 @@
+:root {
+  --green: #659b15;
+  --green-dark: #3f6510;
+  --ink: #252525;
+  --muted: #595959;
+  --surface: #f5f5f5;
+  --white: #fff;
+  --border: #d9d9d9;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--ink);
+  background: var(--surface);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.access-page,
+.module-page {
+  width: min(100% - 2rem, 960px);
+  margin: 0 auto;
+}
+
+.access-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+}
+
+.access-card,
+.request-card {
+  width: 100%;
+  padding: clamp(2rem, 6vw, 3.5rem);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--white);
+  box-shadow: 0 16px 36px rgba(37, 37, 37, 0.08);
+}
+
+.access-card { max-width: 470px; }
+.brand-logo { display: block; width: 156px; max-width: 100%; height: auto; }
+.eyebrow { margin: 1.75rem 0 0.35rem; color: var(--muted); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+h1 { margin: 0; color: var(--green-dark); font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; }
+.intro { margin: 1rem 0 0; color: var(--muted); }
+.access-form { display: grid; gap: 0.55rem; margin-top: 2rem; }
+label { color: var(--ink); font-weight: 700; }
+input,
+button { font: inherit; }
+input { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.35rem; }
+button { padding: 0.8rem 1rem; border: 0; border-radius: 0.35rem; color: var(--white); background: var(--green-dark); font-weight: 700; cursor: pointer; }
+button:hover { background: var(--green); }
+input:focus-visible,
+button:focus-visible,
+.logout-link:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+.form-message { margin: 0.5rem 0; color: #8b1e1e; font-weight: 700; }
+
+.module-page { padding: clamp(1rem, 4vw, 2.5rem) 0; }
+.module-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+.logout-link { color: var(--green-dark); font-weight: 700; }
+.request-content { min-height: 180px; margin-top: 2rem; border: 1px dashed var(--border); border-radius: 0.6rem; background: var(--surface); }
+
+@media (max-width: 520px) {
+  .module-header { align-items: flex-start; flex-direction: column; }
+}
