@@ -23,38 +23,76 @@ deployment:
 
       restaurar_produccion() {
         if [ "$WEB_PROMOVIDO" -eq 1 ]; then
-          /bin/rm -rf "$PUBLICPATH/web"
-        fi
-        if [ "$WEB_RESPALDADO" -eq 1 ]; then
-          /bin/mv "$BACKUPPATH/web" "$PUBLICPATH/web"
+          if ! /bin/rm -rf "$PUBLICPATH/web" || [ -e "$PUBLICPATH/web" ]; then
+            printf '%s\n' 'No se pudo retirar la versión promovida de web; se omite la restauración de su backup.' >&2
+          elif [ "$WEB_RESPALDADO" -eq 1 ] && ! /bin/mv "$BACKUPPATH/web" "$PUBLICPATH/web"; then
+            printf '%s\n' 'No se pudo restaurar el backup de web.' >&2
+          fi
+        elif [ "$WEB_RESPALDADO" -eq 1 ]; then
+          if [ ! -e "$PUBLICPATH/web" ]; then
+            if ! /bin/mv "$BACKUPPATH/web" "$PUBLICPATH/web"; then
+              printf '%s\n' 'No se pudo restaurar el backup de web.' >&2
+            fi
+          else
+            printf '%s\n' 'El destino de web sigue existiendo; se omite la restauración de su backup.' >&2
+          fi
         fi
 
         if [ "$SOLICITUDES_PROMOVIDO" -eq 1 ]; then
-          /bin/rm -rf "$PUBLICPATH/solicitudes"
-        fi
-        if [ "$SOLICITUDES_RESPALDADO" -eq 1 ]; then
-          /bin/mv "$BACKUPPATH/solicitudes" "$PUBLICPATH/solicitudes"
+          if ! /bin/rm -rf "$PUBLICPATH/solicitudes" || [ -e "$PUBLICPATH/solicitudes" ]; then
+            printf '%s\n' 'No se pudo retirar la versión promovida de solicitudes; se omite la restauración de su backup.' >&2
+          elif [ "$SOLICITUDES_RESPALDADO" -eq 1 ] && ! /bin/mv "$BACKUPPATH/solicitudes" "$PUBLICPATH/solicitudes"; then
+            printf '%s\n' 'No se pudo restaurar el backup de solicitudes.' >&2
+          fi
+        elif [ "$SOLICITUDES_RESPALDADO" -eq 1 ]; then
+          if [ ! -e "$PUBLICPATH/solicitudes" ]; then
+            if ! /bin/mv "$BACKUPPATH/solicitudes" "$PUBLICPATH/solicitudes"; then
+              printf '%s\n' 'No se pudo restaurar el backup de solicitudes.' >&2
+            fi
+          else
+            printf '%s\n' 'El destino de solicitudes sigue existiendo; se omite la restauración de su backup.' >&2
+          fi
         fi
 
         if [ "$ROBOTS_PROMOVIDO" -eq 1 ]; then
-          /bin/rm -f "$PUBLICPATH/robots.txt"
-        fi
-        if [ "$ROBOTS_RESPALDADO" -eq 1 ]; then
-          /bin/mv "$BACKUPPATH/robots.txt" "$PUBLICPATH/robots.txt"
+          if ! /bin/rm -f "$PUBLICPATH/robots.txt" || [ -e "$PUBLICPATH/robots.txt" ]; then
+            printf '%s\n' 'No se pudo retirar la versión promovida de robots.txt; se omite la restauración de su backup.' >&2
+          elif [ "$ROBOTS_RESPALDADO" -eq 1 ] && ! /bin/mv "$BACKUPPATH/robots.txt" "$PUBLICPATH/robots.txt"; then
+            printf '%s\n' 'No se pudo restaurar el backup de robots.txt.' >&2
+          fi
+        elif [ "$ROBOTS_RESPALDADO" -eq 1 ]; then
+          if [ ! -e "$PUBLICPATH/robots.txt" ]; then
+            if ! /bin/mv "$BACKUPPATH/robots.txt" "$PUBLICPATH/robots.txt"; then
+              printf '%s\n' 'No se pudo restaurar el backup de robots.txt.' >&2
+            fi
+          else
+            printf '%s\n' 'El destino de robots.txt sigue existiendo; se omite la restauración de su backup.' >&2
+          fi
         fi
 
         if [ "$SITEMAP_PROMOVIDO" -eq 1 ]; then
-          /bin/rm -f "$PUBLICPATH/sitemap.xml"
+          if ! /bin/rm -f "$PUBLICPATH/sitemap.xml" || [ -e "$PUBLICPATH/sitemap.xml" ]; then
+            printf '%s\n' 'No se pudo retirar la versión promovida de sitemap.xml; se omite la restauración de su backup.' >&2
+          elif [ "$SITEMAP_RESPALDADO" -eq 1 ] && ! /bin/mv "$BACKUPPATH/sitemap.xml" "$PUBLICPATH/sitemap.xml"; then
+            printf '%s\n' 'No se pudo restaurar el backup de sitemap.xml.' >&2
+          fi
+        elif [ "$SITEMAP_RESPALDADO" -eq 1 ]; then
+          if [ ! -e "$PUBLICPATH/sitemap.xml" ]; then
+            if ! /bin/mv "$BACKUPPATH/sitemap.xml" "$PUBLICPATH/sitemap.xml"; then
+              printf '%s\n' 'No se pudo restaurar el backup de sitemap.xml.' >&2
+            fi
+          else
+            printf '%s\n' 'El destino de sitemap.xml sigue existiendo; se omite la restauración de su backup.' >&2
+          fi
         fi
-        if [ "$SITEMAP_RESPALDADO" -eq 1 ]; then
-          /bin/mv "$BACKUPPATH/sitemap.xml" "$PUBLICPATH/sitemap.xml"
-        fi
+
+        return 0
       }
 
       finalizar_despliegue() {
         ESTADO=$?
         if [ "$ESTADO" -ne 0 ] && [ "$SWAP_INICIADO" -eq 1 ]; then
-          restaurar_produccion || true
+          restaurar_produccion
         fi
         limpiar_staging || true
         exit "$ESTADO"
