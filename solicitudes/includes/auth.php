@@ -5,6 +5,8 @@ const SOLICITUDES_SESSION_NAME = 'tecma_solicitudes';
 const SOLICITUDES_HTTPS_ORIGIN = 'https://www.tecmasanjuan.com.ar';
 const SOLICITUDES_MAX_INTENTOS_FALLIDOS = 5;
 const SOLICITUDES_BLOQUEO_SEGUNDOS = 900;
+const SOLICITUDES_RATE_LIMIT_TTL_SEGUNDOS = 86400;
+const SOLICITUDES_RATE_LIMIT_LIMPIEZA_MAX_ARCHIVOS = 20;
 
 function solicitudes_es_https(): bool
 {
@@ -103,7 +105,7 @@ function solicitudes_hash_de_acceso(): ?string
     return $hash;
 }
 
-function solicitudes_archivo_rate_limit(): ?string
+function solicitudes_directorio_rate_limit(): ?string
 {
     $directorioSeguro = solicitudes_directorio_seguro();
     if ($directorioSeguro === null) {
@@ -115,8 +117,18 @@ function solicitudes_archivo_rate_limit(): ?string
         error_log('No se pudo crear el directorio de rate limiting de solicitudes.');
         return null;
     }
-    if (!is_writable($directorioRateLimit)) {
+    if (is_link($directorioRateLimit) || !is_writable($directorioRateLimit)) {
         error_log('El directorio de rate limiting de solicitudes no es escribible.');
+        return null;
+    }
+
+    return $directorioRateLimit;
+}
+
+function solicitudes_archivo_rate_limit(): ?string
+{
+    $directorioRateLimit = solicitudes_directorio_rate_limit();
+    if ($directorioRateLimit === null) {
         return null;
     }
 
@@ -127,6 +139,95 @@ function solicitudes_archivo_rate_limit(): ?string
     }
 
     return $directorioRateLimit . '/' . hash('sha256', $direccionCliente) . '.json';
+}
+
+function solicitudes_es_archivo_regular(array $estadoArchivo): bool
+{
+    return (($estadoArchivo['mode'] ?? 0) & 0170000) === 0100000;
+}
+
+function solicitudes_recolectar_estados_rate_limit(string $directorioRateLimit, string $rutaPropia): void
+{
+    $directorio = @opendir($directorioRateLimit);
+    if ($directorio === false) {
+        error_log('No se pudo abrir el directorio de rate limiting de solicitudes para su limpieza.');
+        return;
+    }
+
+    $ahora = time();
+    $expiraAntesDe = $ahora - SOLICITUDES_RATE_LIMIT_TTL_SEGUNDOS;
+    $inspeccionados = 0;
+
+    try {
+        while ($inspeccionados < SOLICITUDES_RATE_LIMIT_LIMPIEZA_MAX_ARCHIVOS && ($nombre = readdir($directorio)) !== false) {
+            $inspeccionados++;
+            if (!preg_match('/\A[a-f0-9]{64}\.json\z/D', $nombre)) {
+                continue;
+            }
+
+            $rutaEstado = $directorioRateLimit . '/' . $nombre;
+            if ($rutaEstado === $rutaPropia || is_link($rutaEstado)) {
+                continue;
+            }
+
+            clearstatcache(true, $rutaEstado);
+            $estadoArchivo = @lstat($rutaEstado);
+            if (!is_array($estadoArchivo)
+                || !solicitudes_es_archivo_regular($estadoArchivo)
+                || ($estadoArchivo['mtime'] ?? 0) > $expiraAntesDe) {
+                continue;
+            }
+
+            $archivo = @fopen($rutaEstado, 'r+');
+            if ($archivo === false || !flock($archivo, LOCK_EX | LOCK_NB)) {
+                if (is_resource($archivo)) {
+                    fclose($archivo);
+                }
+                continue;
+            }
+
+            try {
+                clearstatcache(true, $rutaEstado);
+                $estadoActual = @lstat($rutaEstado);
+                $estadoAbierto = fstat($archivo);
+                if (!is_array($estadoActual)
+                    || !is_array($estadoAbierto)
+                    || !solicitudes_es_archivo_regular($estadoActual)
+                    || !solicitudes_es_archivo_regular($estadoAbierto)
+                    || ($estadoActual['dev'] ?? null) !== ($estadoAbierto['dev'] ?? null)
+                    || ($estadoActual['ino'] ?? null) !== ($estadoAbierto['ino'] ?? null)
+                    || ($estadoActual['mtime'] ?? 0) > $expiraAntesDe
+                    || !rewind($archivo)) {
+                    continue;
+                }
+
+                $contenido = stream_get_contents($archivo);
+                $estado = $contenido === false ? null : json_decode($contenido, true);
+                $bloqueadoHasta = is_array($estado) ? (int) ($estado['bloqueado_hasta'] ?? 0) : 0;
+                if ($bloqueadoHasta > $ahora) {
+                    continue;
+                }
+
+                clearstatcache(true, $rutaEstado);
+                $estadoAntesDeEliminar = @lstat($rutaEstado);
+                if (!is_array($estadoAntesDeEliminar)
+                    || !solicitudes_es_archivo_regular($estadoAntesDeEliminar)
+                    || ($estadoAntesDeEliminar['dev'] ?? null) !== ($estadoAbierto['dev'] ?? null)
+                    || ($estadoAntesDeEliminar['ino'] ?? null) !== ($estadoAbierto['ino'] ?? null)) {
+                    continue;
+                }
+
+                if (!@unlink($rutaEstado)) {
+                    error_log('No se pudo eliminar un estado obsoleto de rate limiting de solicitudes.');
+                }
+            } finally {
+                flock($archivo, LOCK_UN);
+                fclose($archivo);
+            }
+        }
+    } finally {
+        closedir($directorio);
+    }
 }
 
 function solicitudes_abrir_estado_rate_limit(string $rutaEstado): ?array
@@ -197,6 +298,8 @@ function solicitudes_autenticar(string $clave): string
     if ($rutaEstado === null) {
         return 'no_disponible';
     }
+
+    solicitudes_recolectar_estados_rate_limit(dirname($rutaEstado), $rutaEstado);
 
     $estadoAbierto = solicitudes_abrir_estado_rate_limit($rutaEstado);
     if ($estadoAbierto === null) {
