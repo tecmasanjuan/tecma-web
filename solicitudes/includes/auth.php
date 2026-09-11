@@ -129,23 +129,61 @@ function solicitudes_archivo_rate_limit(): ?string
     return $directorioRateLimit . '/' . hash('sha256', $direccionCliente) . '.json';
 }
 
-function solicitudes_leer_estado_rate_limit($archivo): array
+function solicitudes_abrir_estado_rate_limit(string $rutaEstado): ?array
 {
-    rewind($archivo);
-    $contenido = stream_get_contents($archivo);
-    $estado = json_decode($contenido !== false ? $contenido : '', true);
+    $archivo = @fopen($rutaEstado, 'x+');
+    if ($archivo !== false) {
+        return [$archivo, true];
+    }
 
-    return is_array($estado) ? $estado : [];
+    $archivo = @fopen($rutaEstado, 'r+');
+    if ($archivo === false) {
+        error_log('No se pudo abrir el estado de rate limiting de solicitudes.');
+        return null;
+    }
+
+    return [$archivo, false];
+}
+
+function solicitudes_leer_estado_rate_limit($archivo, bool $archivoNuevo): ?array
+{
+    if ($archivoNuevo) {
+        return [];
+    }
+
+    if (!rewind($archivo)) {
+        return null;
+    }
+
+    $contenido = stream_get_contents($archivo);
+    if ($contenido === false || $contenido === '') {
+        return null;
+    }
+
+    $estado = json_decode($contenido, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !is_array($estado)) {
+        return null;
+    }
+
+    return $estado;
 }
 
 function solicitudes_guardar_estado_rate_limit($archivo, array $estado): bool
 {
     $contenido = json_encode($estado);
-    if ($contenido === false || !ftruncate($archivo, 0) || !rewind($archivo)) {
+    if ($contenido === false || !ftruncate($archivo, 0)) {
         return false;
     }
 
-    return fwrite($archivo, $contenido) === strlen($contenido) && fflush($archivo);
+    if (!rewind($archivo) || fwrite($archivo, $contenido) !== strlen($contenido) || !fflush($archivo)) {
+        // Un fallo posterior al truncado no debe dejar un estado válido que pueda reutilizarse.
+        if (ftruncate($archivo, 0)) {
+            fflush($archivo);
+        }
+        return false;
+    }
+
+    return true;
 }
 
 function solicitudes_autenticar(string $clave): string
@@ -160,7 +198,12 @@ function solicitudes_autenticar(string $clave): string
         return 'no_disponible';
     }
 
-    $archivo = fopen($rutaEstado, 'c+');
+    $estadoAbierto = solicitudes_abrir_estado_rate_limit($rutaEstado);
+    if ($estadoAbierto === null) {
+        return 'no_disponible';
+    }
+
+    [$archivo, $archivoNuevo] = $estadoAbierto;
     if ($archivo === false || !flock($archivo, LOCK_EX)) {
         error_log('No se pudo bloquear el estado de rate limiting de solicitudes.');
         if (is_resource($archivo)) {
@@ -172,7 +215,12 @@ function solicitudes_autenticar(string $clave): string
     @chmod($rutaEstado, 0600);
 
     try {
-        $estado = solicitudes_leer_estado_rate_limit($archivo);
+        $estado = solicitudes_leer_estado_rate_limit($archivo, $archivoNuevo);
+        if ($estado === null) {
+            error_log('Estado de rate limiting de solicitudes corrupto o ilegible.');
+            return 'no_disponible';
+        }
+
         $ahora = time();
         $bloqueadoHasta = (int) ($estado['bloqueado_hasta'] ?? 0);
 
