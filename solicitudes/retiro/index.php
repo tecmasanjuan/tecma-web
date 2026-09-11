@@ -8,7 +8,7 @@ solicitudes_evitar_cache();
 solicitudes_no_indexar();
 solicitudes_requiere_autenticacion();
 [$fechaSolicitud, $numeroSolicitud] = retiro_fecha_y_numero();
-$tokenFormulario = retiro_token_formulario($numeroSolicitud);
+$tokenFormulario = retiro_token_formulario($numeroSolicitud, $fechaSolicitud);
 $catalogoRrpp = solicitudes_catalogo_rrpp();
 ?>
 <!doctype html>
