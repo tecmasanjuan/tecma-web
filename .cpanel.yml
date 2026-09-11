@@ -1,0 +1,15 @@
+---
+deployment:
+  tasks:
+    - export PUBLICPATH="$HOME/public_html"
+    - export WEBPATH="$PUBLICPATH/web"
+    - export SOLICITUDESPATH="$PUBLICPATH/solicitudes"
+    - /bin/rm -rf "$WEBPATH"
+    - /bin/mkdir -p "$WEBPATH"
+    - /bin/cp index.html "$WEBPATH/index.html"
+    - /bin/cp -R assets "$WEBPATH/"
+    - /bin/cp -R api "$WEBPATH/"
+    - /bin/rm -rf "$SOLICITUDESPATH"
+    - /bin/cp -R solicitudes "$PUBLICPATH/"
+    - /bin/cp robots.txt "$PUBLICPATH/robots.txt"
+    - /bin/cp sitemap.xml "$PUBLICPATH/sitemap.xml"
