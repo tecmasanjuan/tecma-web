@@ -54,3 +54,11 @@ php -r "echo password_hash('clave-a-definir', PASSWORD_DEFAULT), PHP_EOL;"
 La sesión usa el nombre propio `tecma_solicitudes`, cookies `HttpOnly`, `SameSite=Lax` y `Secure` cuando la conexión es HTTPS. Al autenticar se regenera el identificador de sesión. Las rutas protegidas redirigen a `/solicitudes/` si no hay una sesión válida, y `logout.php` finaliza la sesión.
 
 Las páginas emiten directivas `noindex, nofollow`; esto reduce la exposición a buscadores, pero el control de acceso efectivo es la autenticación de sesión.
+
+## HTTPS y limitación de intentos
+
+El módulo requiere HTTPS antes de procesar credenciales, iniciar una sesión o ejecutar el cierre de sesión. Las solicitudes HTTP se redirigen al origen canónico `https://www.tecmasanjuan.com.ar/solicitudes/`, sin construir la URL a partir de encabezados del cliente.
+
+Los intentos fallidos se limitan por `REMOTE_ADDR`: después de 5 fallos, esa dirección queda bloqueada durante 15 minutos. El estado se guarda con bloqueo exclusivo de archivo en `dirname($_SERVER['DOCUMENT_ROOT']) . '/secure/tecma-solicitudes-rate-limit/'`, fuera de `public_html`, y se restablece tras una autenticación válida.
+
+En cPanel, el usuario que ejecuta PHP debe poder crear y escribir ese directorio dentro de `secure/`. Si no puede guardar el estado de rate limiting, el acceso se rechaza de forma segura.
