@@ -29,6 +29,11 @@ function solicitudes_no_indexar(): void
     header('X-Robots-Tag: noindex, nofollow');
 }
 
+function solicitudes_evitar_cache(): void
+{
+    header('Cache-Control: no-store, private, max-age=0');
+}
+
 function solicitudes_configuracion(): array
 {
     static $configuracionCacheada = null;

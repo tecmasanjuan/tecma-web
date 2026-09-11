@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/includes/auth.php';
 
+solicitudes_evitar_cache();
 solicitudes_iniciar_sesion();
 solicitudes_no_indexar();
 
