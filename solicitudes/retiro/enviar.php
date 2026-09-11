@@ -18,10 +18,12 @@ try {
         $estadoRespuesta = 401;
         $payloadRespuesta = ['error' => 'Tu sesión venció. Ingresá nuevamente para continuar.'];
     } else {
-        $formulario = $_SESSION['retiro_formulario'] ?? [];
-        if (!is_array($formulario) || !is_string($formulario['token'] ?? null) || !hash_equals($formulario['token'], (string) ($_POST['token'] ?? '')) || !is_string($formulario['numero'] ?? null) || (int) ($formulario['creado'] ?? 0) < time() - 3600) {
+        $tokenFormulario = is_string($_POST['token'] ?? null) ? trim($_POST['token']) : '';
+        if (!preg_match('/\A[a-f0-9]{64}\z/D', $tokenFormulario)) {
             throw new InvalidArgumentException('El formulario venció. Recargá la página para generar una nueva solicitud.');
         }
+        $formulario = retiro_formulario_pendiente($tokenFormulario);
+        if ($formulario === null) throw new InvalidArgumentException('El formulario venció. Recargá la página para generar una nueva solicitud.');
         $datos = retiro_validar_solicitud($_POST);
         $adjunto = retiro_adjunto_oc($_FILES['orden_compra_pdf'] ?? [], $datos['oc']);
         $configuracion = retiro_configuracion();
@@ -33,7 +35,7 @@ try {
         if (!retiro_enviar_resend($configuracion, $interno, 'solicitud-retiro-interna/'.$numero)) throw new RuntimeException('No pudimos registrar la solicitud. Intentá nuevamente más tarde.');
         $cliente = ['from'=>$configuracion['SOLICITUDES_RETIRO_FROM_EMAIL'], 'to'=>[$datos['contacto']['email']], 'subject'=>'Recibimos tu solicitud de retiro '.$numero, 'html'=>retiro_html_email($datos, $numero, $fecha, false)];
         $copiaEnviada = retiro_enviar_resend($configuracion, $cliente, 'solicitud-retiro-cliente/'.$numero);
-        unset($_SESSION['retiro_formulario']);
+        unset($_SESSION['retiro_formularios'][$tokenFormulario]);
         $estadoRespuesta = 200;
         $payloadRespuesta = ['numero'=>$numero, 'copia_enviada'=>$copiaEnviada, 'manifiesto_pendiente'=>$datos['manifiesto']==='no'];
     }

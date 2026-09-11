@@ -4,6 +4,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/catalogo_rrpp.php';
 
 const RETIRO_MAX_BLOQUES = 20;
+const RETIRO_MAX_FORMULARIOS_PENDIENTES = 20;
+const RETIRO_FORMULARIO_TTL = 3600;
 
 function retiro_escape(string $valor): string { return htmlspecialchars($valor, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
 function retiro_texto(mixed $valor, int $max = 300): string {
@@ -41,10 +43,44 @@ function retiro_fecha_y_numero(): array {
     $fecha = new DateTimeImmutable('now', new DateTimeZone('America/Argentina/San_Juan'));
     return [$fecha->format('d/m/Y'), 'TEC-' . $fecha->format('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)))];
 }
+function retiro_limpiar_formularios_pendientes(): void {
+    $formularios = $_SESSION['retiro_formularios'] ?? [];
+    if (!is_array($formularios)) {
+        $_SESSION['retiro_formularios'] = [];
+        return;
+    }
+
+    $ahora = time();
+    foreach ($formularios as $token => $formulario) {
+        if (!is_array($formulario) || !is_int($formulario['creado'] ?? null) || $formulario['creado'] < $ahora - RETIRO_FORMULARIO_TTL) {
+            unset($formularios[$token]);
+        }
+    }
+
+    if (count($formularios) > RETIRO_MAX_FORMULARIOS_PENDIENTES) {
+        uasort($formularios, static fn(array $a, array $b): int => $a['creado'] <=> $b['creado']);
+        $formularios = array_slice($formularios, -RETIRO_MAX_FORMULARIOS_PENDIENTES, null, true);
+    }
+
+    $_SESSION['retiro_formularios'] = $formularios;
+}
 function retiro_token_formulario(string $numero, string $fecha): string {
-    $token = bin2hex(random_bytes(32));
-    $_SESSION['retiro_formulario'] = ['token' => $token, 'numero' => $numero, 'fecha' => $fecha, 'creado' => time()];
+    retiro_limpiar_formularios_pendientes();
+    do {
+        $token = bin2hex(random_bytes(32));
+    } while (isset($_SESSION['retiro_formularios'][$token]));
+    $_SESSION['retiro_formularios'][$token] = ['numero' => $numero, 'fecha' => $fecha, 'creado' => time()];
+    retiro_limpiar_formularios_pendientes();
     return $token;
+}
+function retiro_formulario_pendiente(string $token): ?array {
+    retiro_limpiar_formularios_pendientes();
+    $formulario = $_SESSION['retiro_formularios'][$token] ?? null;
+    if (!is_array($formulario) || !is_string($formulario['numero'] ?? null) || !preg_match('/\ATEC-[0-9]{8}-[A-F0-9]{6}\z/D', $formulario['numero']) || !is_string($formulario['fecha'] ?? null) || !preg_match('/\A[0-9]{2}\/[0-9]{2}\/[0-9]{4}\z/D', $formulario['fecha']) || !is_int($formulario['creado'] ?? null) || $formulario['creado'] < time() - RETIRO_FORMULARIO_TTL) {
+        unset($_SESSION['retiro_formularios'][$token]);
+        return null;
+    }
+    return $formulario;
 }
 function retiro_responder_json(int $estado, array $datos): never {
     http_response_code($estado); header('Content-Type: application/json; charset=utf-8'); echo json_encode($datos); exit;
