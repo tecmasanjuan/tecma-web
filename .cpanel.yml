@@ -1,0 +1,147 @@
+---
+deployment:
+  tasks:
+    - |
+      set -eu
+
+      PUBLICPATH="$HOME/public_html"
+      STAGEPATH="$PUBLICPATH/.tecma-deploy-stage-$$"
+      BACKUPPATH="$PUBLICPATH/.tecma-deploy-backup-$$"
+      SWAP_INICIADO=0
+      WEB_RESPALDADO=0
+      SOLICITUDES_RESPALDADO=0
+      ROBOTS_RESPALDADO=0
+      SITEMAP_RESPALDADO=0
+      WEB_PROMOVIDO=0
+      SOLICITUDES_PROMOVIDO=0
+      ROBOTS_PROMOVIDO=0
+      SITEMAP_PROMOVIDO=0
+
+      limpiar_staging() {
+        /bin/rm -rf "$STAGEPATH"
+      }
+
+      restaurar_produccion() {
+        if [ "$WEB_PROMOVIDO" -eq 1 ]; then
+          if ! /bin/rm -rf "$PUBLICPATH/web" || [ -e "$PUBLICPATH/web" ]; then
+            printf '%s\n' 'No se pudo retirar la versión promovida de web; se omite la restauración de su backup.' >&2
+          elif [ "$WEB_RESPALDADO" -eq 1 ] && ! /bin/mv "$BACKUPPATH/web" "$PUBLICPATH/web"; then
+            printf '%s\n' 'No se pudo restaurar el backup de web.' >&2
+          fi
+        elif [ "$WEB_RESPALDADO" -eq 1 ]; then
+          if [ ! -e "$PUBLICPATH/web" ]; then
+            if ! /bin/mv "$BACKUPPATH/web" "$PUBLICPATH/web"; then
+              printf '%s\n' 'No se pudo restaurar el backup de web.' >&2
+            fi
+          else
+            printf '%s\n' 'El destino de web sigue existiendo; se omite la restauración de su backup.' >&2
+          fi
+        fi
+
+        if [ "$SOLICITUDES_PROMOVIDO" -eq 1 ]; then
+          if ! /bin/rm -rf "$PUBLICPATH/solicitudes" || [ -e "$PUBLICPATH/solicitudes" ]; then
+            printf '%s\n' 'No se pudo retirar la versión promovida de solicitudes; se omite la restauración de su backup.' >&2
+          elif [ "$SOLICITUDES_RESPALDADO" -eq 1 ] && ! /bin/mv "$BACKUPPATH/solicitudes" "$PUBLICPATH/solicitudes"; then
+            printf '%s\n' 'No se pudo restaurar el backup de solicitudes.' >&2
+          fi
+        elif [ "$SOLICITUDES_RESPALDADO" -eq 1 ]; then
+          if [ ! -e "$PUBLICPATH/solicitudes" ]; then
+            if ! /bin/mv "$BACKUPPATH/solicitudes" "$PUBLICPATH/solicitudes"; then
+              printf '%s\n' 'No se pudo restaurar el backup de solicitudes.' >&2
+            fi
+          else
+            printf '%s\n' 'El destino de solicitudes sigue existiendo; se omite la restauración de su backup.' >&2
+          fi
+        fi
+
+        if [ "$ROBOTS_PROMOVIDO" -eq 1 ]; then
+          if ! /bin/rm -f "$PUBLICPATH/robots.txt" || [ -e "$PUBLICPATH/robots.txt" ]; then
+            printf '%s\n' 'No se pudo retirar la versión promovida de robots.txt; se omite la restauración de su backup.' >&2
+          elif [ "$ROBOTS_RESPALDADO" -eq 1 ] && ! /bin/mv "$BACKUPPATH/robots.txt" "$PUBLICPATH/robots.txt"; then
+            printf '%s\n' 'No se pudo restaurar el backup de robots.txt.' >&2
+          fi
+        elif [ "$ROBOTS_RESPALDADO" -eq 1 ]; then
+          if [ ! -e "$PUBLICPATH/robots.txt" ]; then
+            if ! /bin/mv "$BACKUPPATH/robots.txt" "$PUBLICPATH/robots.txt"; then
+              printf '%s\n' 'No se pudo restaurar el backup de robots.txt.' >&2
+            fi
+          else
+            printf '%s\n' 'El destino de robots.txt sigue existiendo; se omite la restauración de su backup.' >&2
+          fi
+        fi
+
+        if [ "$SITEMAP_PROMOVIDO" -eq 1 ]; then
+          if ! /bin/rm -f "$PUBLICPATH/sitemap.xml" || [ -e "$PUBLICPATH/sitemap.xml" ]; then
+            printf '%s\n' 'No se pudo retirar la versión promovida de sitemap.xml; se omite la restauración de su backup.' >&2
+          elif [ "$SITEMAP_RESPALDADO" -eq 1 ] && ! /bin/mv "$BACKUPPATH/sitemap.xml" "$PUBLICPATH/sitemap.xml"; then
+            printf '%s\n' 'No se pudo restaurar el backup de sitemap.xml.' >&2
+          fi
+        elif [ "$SITEMAP_RESPALDADO" -eq 1 ]; then
+          if [ ! -e "$PUBLICPATH/sitemap.xml" ]; then
+            if ! /bin/mv "$BACKUPPATH/sitemap.xml" "$PUBLICPATH/sitemap.xml"; then
+              printf '%s\n' 'No se pudo restaurar el backup de sitemap.xml.' >&2
+            fi
+          else
+            printf '%s\n' 'El destino de sitemap.xml sigue existiendo; se omite la restauración de su backup.' >&2
+          fi
+        fi
+
+        return 0
+      }
+
+      finalizar_despliegue() {
+        ESTADO=$?
+        if [ "$ESTADO" -ne 0 ] && [ "$SWAP_INICIADO" -eq 1 ]; then
+          restaurar_produccion
+        fi
+        limpiar_staging || true
+        exit "$ESTADO"
+      }
+      trap finalizar_despliegue EXIT
+
+      /bin/mkdir -p "$STAGEPATH/web" "$BACKUPPATH"
+      /bin/cp index.html "$STAGEPATH/web/index.html"
+      /bin/cp -R assets "$STAGEPATH/web/"
+      /bin/cp -R api "$STAGEPATH/web/"
+      /bin/cp -R solicitudes "$STAGEPATH/solicitudes"
+      /bin/cp robots.txt "$STAGEPATH/robots.txt"
+      /bin/cp sitemap.xml "$STAGEPATH/sitemap.xml"
+
+      [ -f "$STAGEPATH/web/index.html" ]
+      [ -d "$STAGEPATH/web/assets" ]
+      [ -f "$STAGEPATH/web/api/contacto.php" ]
+      [ -f "$STAGEPATH/solicitudes/index.php" ]
+      [ -f "$STAGEPATH/solicitudes/includes/auth.php" ]
+      [ -f "$STAGEPATH/robots.txt" ]
+      [ -f "$STAGEPATH/sitemap.xml" ]
+
+      SWAP_INICIADO=1
+      if [ -e "$PUBLICPATH/web" ]; then
+        /bin/mv "$PUBLICPATH/web" "$BACKUPPATH/web"
+        WEB_RESPALDADO=1
+      fi
+      if [ -e "$PUBLICPATH/solicitudes" ]; then
+        /bin/mv "$PUBLICPATH/solicitudes" "$BACKUPPATH/solicitudes"
+        SOLICITUDES_RESPALDADO=1
+      fi
+      if [ -e "$PUBLICPATH/robots.txt" ]; then
+        /bin/mv "$PUBLICPATH/robots.txt" "$BACKUPPATH/robots.txt"
+        ROBOTS_RESPALDADO=1
+      fi
+      if [ -e "$PUBLICPATH/sitemap.xml" ]; then
+        /bin/mv "$PUBLICPATH/sitemap.xml" "$BACKUPPATH/sitemap.xml"
+        SITEMAP_RESPALDADO=1
+      fi
+
+      /bin/mv "$STAGEPATH/web" "$PUBLICPATH/web"
+      WEB_PROMOVIDO=1
+      /bin/mv "$STAGEPATH/solicitudes" "$PUBLICPATH/solicitudes"
+      SOLICITUDES_PROMOVIDO=1
+      /bin/mv "$STAGEPATH/robots.txt" "$PUBLICPATH/robots.txt"
+      ROBOTS_PROMOVIDO=1
+      /bin/mv "$STAGEPATH/sitemap.xml" "$PUBLICPATH/sitemap.xml"
+      SITEMAP_PROMOVIDO=1
+
+      trap - EXIT
+      limpiar_staging
+      /bin/rm -rf "$BACKUPPATH"
