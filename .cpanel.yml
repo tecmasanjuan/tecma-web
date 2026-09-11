@@ -7,32 +7,53 @@ deployment:
       PUBLICPATH="$HOME/public_html"
       STAGEPATH="$PUBLICPATH/.tecma-deploy-stage-$$"
       BACKUPPATH="$PUBLICPATH/.tecma-deploy-backup-$$"
+      SWAP_INICIADO=0
+      WEB_RESPALDADO=0
+      SOLICITUDES_RESPALDADO=0
+      ROBOTS_RESPALDADO=0
+      SITEMAP_RESPALDADO=0
+      WEB_PROMOVIDO=0
+      SOLICITUDES_PROMOVIDO=0
+      ROBOTS_PROMOVIDO=0
+      SITEMAP_PROMOVIDO=0
 
       limpiar_staging() {
         /bin/rm -rf "$STAGEPATH"
       }
 
       restaurar_produccion() {
-        /bin/rm -rf "$PUBLICPATH/web" "$PUBLICPATH/solicitudes"
-        /bin/rm -f "$PUBLICPATH/robots.txt" "$PUBLICPATH/sitemap.xml"
-
-        if [ -d "$BACKUPPATH/web" ]; then
+        if [ "$WEB_PROMOVIDO" -eq 1 ]; then
+          /bin/rm -rf "$PUBLICPATH/web"
+        fi
+        if [ "$WEB_RESPALDADO" -eq 1 ]; then
           /bin/mv "$BACKUPPATH/web" "$PUBLICPATH/web"
         fi
-        if [ -d "$BACKUPPATH/solicitudes" ]; then
+
+        if [ "$SOLICITUDES_PROMOVIDO" -eq 1 ]; then
+          /bin/rm -rf "$PUBLICPATH/solicitudes"
+        fi
+        if [ "$SOLICITUDES_RESPALDADO" -eq 1 ]; then
           /bin/mv "$BACKUPPATH/solicitudes" "$PUBLICPATH/solicitudes"
         fi
-        if [ -f "$BACKUPPATH/robots.txt" ]; then
+
+        if [ "$ROBOTS_PROMOVIDO" -eq 1 ]; then
+          /bin/rm -f "$PUBLICPATH/robots.txt"
+        fi
+        if [ "$ROBOTS_RESPALDADO" -eq 1 ]; then
           /bin/mv "$BACKUPPATH/robots.txt" "$PUBLICPATH/robots.txt"
         fi
-        if [ -f "$BACKUPPATH/sitemap.xml" ]; then
+
+        if [ "$SITEMAP_PROMOVIDO" -eq 1 ]; then
+          /bin/rm -f "$PUBLICPATH/sitemap.xml"
+        fi
+        if [ "$SITEMAP_RESPALDADO" -eq 1 ]; then
           /bin/mv "$BACKUPPATH/sitemap.xml" "$PUBLICPATH/sitemap.xml"
         fi
       }
 
       finalizar_despliegue() {
         ESTADO=$?
-        if [ "$ESTADO" -ne 0 ]; then
+        if [ "$ESTADO" -ne 0 ] && [ "$SWAP_INICIADO" -eq 1 ]; then
           restaurar_produccion || true
         fi
         limpiar_staging || true
@@ -56,23 +77,32 @@ deployment:
       [ -f "$STAGEPATH/robots.txt" ]
       [ -f "$STAGEPATH/sitemap.xml" ]
 
+      SWAP_INICIADO=1
       if [ -e "$PUBLICPATH/web" ]; then
         /bin/mv "$PUBLICPATH/web" "$BACKUPPATH/web"
+        WEB_RESPALDADO=1
       fi
       if [ -e "$PUBLICPATH/solicitudes" ]; then
         /bin/mv "$PUBLICPATH/solicitudes" "$BACKUPPATH/solicitudes"
+        SOLICITUDES_RESPALDADO=1
       fi
       if [ -e "$PUBLICPATH/robots.txt" ]; then
         /bin/mv "$PUBLICPATH/robots.txt" "$BACKUPPATH/robots.txt"
+        ROBOTS_RESPALDADO=1
       fi
       if [ -e "$PUBLICPATH/sitemap.xml" ]; then
         /bin/mv "$PUBLICPATH/sitemap.xml" "$BACKUPPATH/sitemap.xml"
+        SITEMAP_RESPALDADO=1
       fi
 
       /bin/mv "$STAGEPATH/web" "$PUBLICPATH/web"
+      WEB_PROMOVIDO=1
       /bin/mv "$STAGEPATH/solicitudes" "$PUBLICPATH/solicitudes"
+      SOLICITUDES_PROMOVIDO=1
       /bin/mv "$STAGEPATH/robots.txt" "$PUBLICPATH/robots.txt"
+      ROBOTS_PROMOVIDO=1
       /bin/mv "$STAGEPATH/sitemap.xml" "$PUBLICPATH/sitemap.xml"
+      SITEMAP_PROMOVIDO=1
 
       trap - EXIT
       limpiar_staging
