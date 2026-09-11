@@ -1,15 +1,79 @@
 ---
 deployment:
   tasks:
-    - export PUBLICPATH="$HOME/public_html"
-    - export WEBPATH="$PUBLICPATH/web"
-    - export SOLICITUDESPATH="$PUBLICPATH/solicitudes"
-    - /bin/rm -rf "$WEBPATH"
-    - /bin/mkdir -p "$WEBPATH"
-    - /bin/cp index.html "$WEBPATH/index.html"
-    - /bin/cp -R assets "$WEBPATH/"
-    - /bin/cp -R api "$WEBPATH/"
-    - /bin/rm -rf "$SOLICITUDESPATH"
-    - /bin/cp -R solicitudes "$PUBLICPATH/"
-    - /bin/cp robots.txt "$PUBLICPATH/robots.txt"
-    - /bin/cp sitemap.xml "$PUBLICPATH/sitemap.xml"
+    - |
+      set -eu
+
+      PUBLICPATH="$HOME/public_html"
+      STAGEPATH="$PUBLICPATH/.tecma-deploy-stage-$$"
+      BACKUPPATH="$PUBLICPATH/.tecma-deploy-backup-$$"
+
+      limpiar_staging() {
+        /bin/rm -rf "$STAGEPATH"
+      }
+
+      restaurar_produccion() {
+        /bin/rm -rf "$PUBLICPATH/web" "$PUBLICPATH/solicitudes"
+        /bin/rm -f "$PUBLICPATH/robots.txt" "$PUBLICPATH/sitemap.xml"
+
+        if [ -d "$BACKUPPATH/web" ]; then
+          /bin/mv "$BACKUPPATH/web" "$PUBLICPATH/web"
+        fi
+        if [ -d "$BACKUPPATH/solicitudes" ]; then
+          /bin/mv "$BACKUPPATH/solicitudes" "$PUBLICPATH/solicitudes"
+        fi
+        if [ -f "$BACKUPPATH/robots.txt" ]; then
+          /bin/mv "$BACKUPPATH/robots.txt" "$PUBLICPATH/robots.txt"
+        fi
+        if [ -f "$BACKUPPATH/sitemap.xml" ]; then
+          /bin/mv "$BACKUPPATH/sitemap.xml" "$PUBLICPATH/sitemap.xml"
+        fi
+      }
+
+      finalizar_despliegue() {
+        ESTADO=$?
+        if [ "$ESTADO" -ne 0 ]; then
+          restaurar_produccion || true
+        fi
+        limpiar_staging || true
+        exit "$ESTADO"
+      }
+      trap finalizar_despliegue EXIT
+
+      /bin/mkdir -p "$STAGEPATH/web" "$BACKUPPATH"
+      /bin/cp index.html "$STAGEPATH/web/index.html"
+      /bin/cp -R assets "$STAGEPATH/web/"
+      /bin/cp -R api "$STAGEPATH/web/"
+      /bin/cp -R solicitudes "$STAGEPATH/solicitudes"
+      /bin/cp robots.txt "$STAGEPATH/robots.txt"
+      /bin/cp sitemap.xml "$STAGEPATH/sitemap.xml"
+
+      [ -f "$STAGEPATH/web/index.html" ]
+      [ -d "$STAGEPATH/web/assets" ]
+      [ -f "$STAGEPATH/web/api/contacto.php" ]
+      [ -f "$STAGEPATH/solicitudes/index.php" ]
+      [ -f "$STAGEPATH/solicitudes/includes/auth.php" ]
+      [ -f "$STAGEPATH/robots.txt" ]
+      [ -f "$STAGEPATH/sitemap.xml" ]
+
+      if [ -e "$PUBLICPATH/web" ]; then
+        /bin/mv "$PUBLICPATH/web" "$BACKUPPATH/web"
+      fi
+      if [ -e "$PUBLICPATH/solicitudes" ]; then
+        /bin/mv "$PUBLICPATH/solicitudes" "$BACKUPPATH/solicitudes"
+      fi
+      if [ -e "$PUBLICPATH/robots.txt" ]; then
+        /bin/mv "$PUBLICPATH/robots.txt" "$BACKUPPATH/robots.txt"
+      fi
+      if [ -e "$PUBLICPATH/sitemap.xml" ]; then
+        /bin/mv "$PUBLICPATH/sitemap.xml" "$BACKUPPATH/sitemap.xml"
+      fi
+
+      /bin/mv "$STAGEPATH/web" "$PUBLICPATH/web"
+      /bin/mv "$STAGEPATH/solicitudes" "$PUBLICPATH/solicitudes"
+      /bin/mv "$STAGEPATH/robots.txt" "$PUBLICPATH/robots.txt"
+      /bin/mv "$STAGEPATH/sitemap.xml" "$PUBLICPATH/sitemap.xml"
+
+      trap - EXIT
+      limpiar_staging
+      /bin/rm -rf "$BACKUPPATH"
