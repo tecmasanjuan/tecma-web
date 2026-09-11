@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/includes/auth.php';
 
+solicitudes_requiere_https();
 solicitudes_evitar_cache();
 solicitudes_iniciar_sesion();
 solicitudes_no_indexar();
@@ -15,12 +16,14 @@ if (solicitudes_tiene_sesion_valida()) {
 $mensaje = '';
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $clave = (string) ($_POST['clave'] ?? '');
+    $resultado = solicitudes_autenticar($clave);
 
-    if (solicitudes_hash_de_acceso() === null) {
-        $mensaje = 'El acceso no está disponible en este momento.';
-    } elseif (solicitudes_autenticar($clave)) {
+    if ($resultado === 'autenticada') {
         header('Location: /solicitudes/retiro/');
         exit;
+    }
+    if ($resultado === 'bloqueada' || $resultado === 'no_disponible') {
+        $mensaje = 'El acceso no está disponible en este momento.';
     } else {
         $mensaje = 'La clave de acceso no es válida.';
     }
