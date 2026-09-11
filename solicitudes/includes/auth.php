@@ -21,6 +21,7 @@ function solicitudes_iniciar_sesion(): void
         'samesite' => 'Lax',
         'secure' => solicitudes_es_https(),
     ]);
+    session_cache_limiter('');
     session_start();
 }
 
