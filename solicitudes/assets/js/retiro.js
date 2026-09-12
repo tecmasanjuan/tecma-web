@@ -67,7 +67,7 @@
   };
   const chooseCategory = (card, value) => {
     const select = card.querySelector('.rrpp-category'); const option = [...select.options].find((item) => item.value === value); if (!option) return;
-    select.value = value; card.querySelector('.rrpp-search').value = option.value; card.querySelector('.rrpp-results').hidden = true; updateCategory(card);
+    select.value = value; card.querySelector('.rrpp-search').value = option.value; card.querySelector('.rrpp-results').hidden = true; card.querySelector('.rrpp-search').removeAttribute('aria-activedescendant'); updateCategory(card);
   };
   form.addEventListener('input', (event) => {
     const card = event.target.closest('.residuo');
@@ -77,11 +77,11 @@
   });
   form.addEventListener('keydown', (event) => {
     if (!event.target.matches('.rrpp-search')) return;
-    const card = event.target.closest('.residuo'); const buttons = [...card.querySelectorAll('.rrpp-result')]; if (!buttons.length) return;
+    const card = event.target.closest('.residuo'); const results = card.querySelector('.rrpp-results'); if (results.hidden) return; const buttons = [...results.querySelectorAll('.rrpp-result')]; if (!buttons.length) return;
     const state = searchState.get(card) || { active: 0 };
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); state.active = (state.active + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length; searchState.set(card, state); updateActiveResult(card); }
     if (event.key === 'Enter') { event.preventDefault(); chooseCategory(card, buttons[state.active]?.dataset.value || buttons[0].dataset.value); }
-    if (event.key === 'Escape') { card.querySelector('.rrpp-results').hidden = true; }
+    if (event.key === 'Escape') { results.hidden = true; event.target.removeAttribute('aria-activedescendant'); }
   });
   form.addEventListener('click', (event) => { const button = event.target.closest('.rrpp-result'); if (button) { event.preventDefault(); chooseCategory(button.closest('.residuo'), button.dataset.value); } });
   form.addEventListener('change', (event) => { const card = event.target.closest('.residuo'); if (card) { updateCategory(card); updateTotals(); } });

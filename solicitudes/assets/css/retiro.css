@@ -1,6 +1,7 @@
 .request-content { min-height: 0; border: 0; background: transparent; }
 .required-legend { margin: .25rem 0 1.5rem; color: var(--muted); font-size: .9rem; }
 .required-mark { color: #b42318; font-weight: 800; }
+.field-label { display: block; }
 .retiro-form { display: grid; gap: 2rem; }
 .retiro-form section { border-top: 1px solid var(--border); padding-top: 1.5rem; }
 .retiro-form h2 { margin: 0 0 1rem; color: var(--green-dark); font-size: 1.35rem; }
