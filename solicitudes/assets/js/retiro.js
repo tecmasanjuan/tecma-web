@@ -7,7 +7,11 @@
   const indexes = { horario: 0, residuo: 0 };
   const add = (kind) => {
     const fragment = templates[kind].content.cloneNode(true);
-    fragment.querySelectorAll('[name]').forEach((field) => { field.name = field.name.replace('__INDEX__', indexes[kind]); });
+    fragment.querySelectorAll('[name], [id], [aria-controls]').forEach((field) => {
+      ['name', 'id', 'aria-controls'].forEach((attribute) => {
+        if (field.hasAttribute(attribute)) field.setAttribute(attribute, field.getAttribute(attribute).replace('__INDEX__', indexes[kind]));
+      });
+    });
     indexes[kind] += 1;
     lists[kind].append(fragment);
     updateRemoveButtons(kind);
@@ -43,19 +47,43 @@
     });
   };
   form.addEventListener('change', conditions); conditions();
+  const searchState = new WeakMap();
   const updateCategory = (card) => {
     const select = card.querySelector('.rrpp-category'); const selected = select.selectedOptions[0];
     card.querySelector('.rrpp-description').textContent = selected?.dataset.description || '';
   };
+  const updateActiveResult = (card) => {
+    const results = card.querySelector('.rrpp-results'); const buttons = [...results.querySelectorAll('.rrpp-result')];
+    const state = searchState.get(card) || { active: 0 }; state.active = Math.max(0, Math.min(state.active, buttons.length - 1)); searchState.set(card, state);
+    buttons.forEach((button, index) => { const active = index === state.active; button.classList.toggle('is-active', active); button.setAttribute('aria-selected', active ? 'true' : 'false'); });
+    if (buttons[state.active]) card.querySelector('.rrpp-search').setAttribute('aria-activedescendant', buttons[state.active].id); else card.querySelector('.rrpp-search').removeAttribute('aria-activedescendant');
+  };
+  const updateSearchResults = (card) => {
+    const input = card.querySelector('.rrpp-search'); const results = card.querySelector('.rrpp-results'); const search = input.value.trim().toLocaleLowerCase('es');
+    const matches = [...card.querySelectorAll('.rrpp-category option')].filter((option) => option.value && (!search || option.textContent.toLocaleLowerCase('es').includes(search)));
+    results.replaceChildren();
+    matches.forEach((option, index) => { const button = document.createElement('button'); button.type = 'button'; button.className = 'rrpp-result'; button.id = `${results.id}-option-${index}`; button.dataset.value = option.value; button.setAttribute('role', 'option'); button.setAttribute('aria-selected', 'false'); button.textContent = option.textContent; results.append(button); });
+    results.hidden = !search || matches.length === 0; searchState.set(card, { active: 0 }); updateActiveResult(card);
+  };
+  const chooseCategory = (card, value) => {
+    const select = card.querySelector('.rrpp-category'); const option = [...select.options].find((item) => item.value === value); if (!option) return;
+    select.value = value; card.querySelector('.rrpp-search').value = option.value; card.querySelector('.rrpp-results').hidden = true; card.querySelector('.rrpp-search').removeAttribute('aria-activedescendant'); updateCategory(card);
+  };
   form.addEventListener('input', (event) => {
     const card = event.target.closest('.residuo');
     if (!card) return;
-    if (event.target.matches('.rrpp-search')) {
-      const search = event.target.value.trim().toLocaleLowerCase('es');
-      card.querySelectorAll('.rrpp-category option').forEach((option, index) => { if (index) option.hidden = !!search && !option.text.toLocaleLowerCase('es').includes(search); });
-    }
+    if (event.target.matches('.rrpp-search')) updateSearchResults(card);
     updateTotals();
   });
+  form.addEventListener('keydown', (event) => {
+    if (!event.target.matches('.rrpp-search')) return;
+    const card = event.target.closest('.residuo'); const results = card.querySelector('.rrpp-results'); if (results.hidden) return; const buttons = [...results.querySelectorAll('.rrpp-result')]; if (!buttons.length) return;
+    const state = searchState.get(card) || { active: 0 };
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); state.active = (state.active + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length; searchState.set(card, state); updateActiveResult(card); }
+    if (event.key === 'Enter') { event.preventDefault(); chooseCategory(card, buttons[state.active]?.dataset.value || buttons[0].dataset.value); }
+    if (event.key === 'Escape') { results.hidden = true; event.target.removeAttribute('aria-activedescendant'); }
+  });
+  form.addEventListener('click', (event) => { const button = event.target.closest('.rrpp-result'); if (button) { event.preventDefault(); chooseCategory(button.closest('.residuo'), button.dataset.value); } });
   form.addEventListener('change', (event) => { const card = event.target.closest('.residuo'); if (card) { updateCategory(card); updateTotals(); } });
   const updateTotals = () => {
     const totals = { 'm³': 0, kg: 0, L: 0, tn: 0 };

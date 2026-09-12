@@ -1,4 +1,7 @@
 .request-content { min-height: 0; border: 0; background: transparent; }
+.required-legend { margin: .25rem 0 1.5rem; color: var(--muted); font-size: .9rem; }
+.required-mark { color: #b42318; font-weight: 800; }
+.field-label { display: block; }
 .retiro-form { display: grid; gap: 2rem; }
 .retiro-form section { border-top: 1px solid var(--border); padding-top: 1.5rem; }
 .retiro-form h2 { margin: 0 0 1rem; color: var(--green-dark); font-size: 1.35rem; }
@@ -6,6 +9,10 @@
 .form-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .retiro-form label { display: grid; gap: .35rem; }
 .retiro-form input, .retiro-form select, .retiro-form textarea { width: 100%; padding: .7rem; border: 1px solid var(--border); border-radius: .35rem; font: inherit; }
+.rrpp-results { position: relative; z-index: 2; display: grid; max-height: 14rem; overflow-y: auto; border: 1px solid var(--border); border-radius: .35rem; background: var(--white); box-shadow: 0 8px 18px rgba(37, 37, 37, .12); }
+.rrpp-results[hidden] { display: none; }
+.rrpp-result { width: 100%; padding: .6rem .7rem; border-radius: 0; color: var(--ink); background: var(--white); text-align: left; font-weight: 400; }
+.rrpp-result:hover, .rrpp-result:focus-visible, .rrpp-result.is-active { color: var(--green-dark); background: #e7efdc; }
 .retiro-form textarea { min-height: 5rem; resize: vertical; }
 .retiro-form fieldset { display: flex; gap: 1.25rem; flex-wrap: wrap; margin: 0; padding: .8rem 0; border: 0; }
 .retiro-form legend { font-weight: 700; }.retiro-form .check, .retiro-form .radio { display: flex; align-items: center; gap: .55rem; font-weight: 400; }.retiro-form .check input, .retiro-form .radio input { width: auto; }.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }.repeat-list { display: grid; gap: 1rem; }.repeat-card { padding: 1rem; border: 1px solid var(--border); border-radius: .6rem; background: #fafcf7; }.secondary { color: var(--green-dark); background: #e7efdc; }.secondary:hover { background: #d5e4c1; }.remove-item { margin-top: 1rem; }.totals { display: flex; flex-wrap: wrap; gap: .75rem 1rem; margin-top: 1rem; }.warning { padding: 1rem; border-left: 4px solid #b85c00; background: #fff4df; }.conditional[hidden] { display: none; }.form-status { min-height: 1.5rem; color: #8b1e1e; font-weight: 700; }.form-status.success { color: var(--green-dark); }.submit { justify-self: start; }.confirmation { font-weight: 700 !important; }
