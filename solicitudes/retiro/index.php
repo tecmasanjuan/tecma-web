@@ -18,6 +18,7 @@ $catalogoRrpp = solicitudes_catalogo_rrpp();
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>Solicitud de Retiro | TeCMA San Juan</title>
+    <link rel="icon" href="../assets/img/favicon.png" type="image/png" />
     <link rel="stylesheet" href="../assets/css/solicitudes.css" />
     <link rel="stylesheet" href="../assets/css/retiro.css" />
   </head>
@@ -53,6 +54,11 @@ $catalogoRrpp = solicitudes_catalogo_rrpp();
         </div>
       </section>
     </main>
+    <footer class="site-footer">
+      <img src="../assets/img/tecma-logo.png" alt="TeCMA San Juan" />
+      <p>© 2026 TeCMA San Juan. Todos los derechos reservados.</p>
+      <p>Desarrollado por <a href="https://nexarsistemas.com.ar" target="_blank" rel="noopener noreferrer">NexarSistemas</a></p>
+    </footer>
   </body>
   <template id="horario-template"><div class="repeat-card horario"><div class="form-grid"><label><span class="field-label">Día o rango de días <span class="required-mark" aria-hidden="true">*</span></span><input name="horarios[__INDEX__][dia]" list="dias-sugeridos" maxlength="100" required /></label><label><span class="field-label">Desde <span class="required-mark" aria-hidden="true">*</span></span><input type="time" name="horarios[__INDEX__][desde]" required /></label><label><span class="field-label">Hasta <span class="required-mark" aria-hidden="true">*</span></span><input type="time" name="horarios[__INDEX__][hasta]" required /></label></div><button type="button" class="remove-item secondary">Eliminar horario</button></div></template>
   <datalist id="dias-sugeridos"><option>Lunes a viernes</option><option>Lunes a sábado</option><option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option>Sábado</option></datalist>
