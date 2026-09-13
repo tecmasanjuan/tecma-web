@@ -28,7 +28,7 @@ body {
 
 .access-page {
   display: grid;
-  min-height: 100vh;
+  min-height: calc(100vh - 110px);
   place-items: center;
 }
 
@@ -58,11 +58,17 @@ input:focus-visible,
 button:focus-visible,
 .logout-link:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
 .form-message { margin: 0.5rem 0; color: #8b1e1e; font-weight: 700; }
+.access-help { margin: 1.5rem 0 0; color: var(--muted); font-size: 0.9rem; }
+.access-help a,
+.site-footer a { color: var(--green-dark); font-weight: 700; }
 
 .module-page { padding: clamp(1rem, 4vw, 2.5rem) 0; }
 .module-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
 .logout-link { color: var(--green-dark); font-weight: 700; }
 .request-content { min-height: 180px; margin-top: 2rem; border: 1px dashed var(--border); border-radius: 0.6rem; background: var(--surface); }
+.site-footer { padding: 1.25rem 1rem 1.5rem; color: var(--muted); text-align: center; font-size: 0.8rem; }
+.site-footer img { width: 112px; max-width: 100%; height: auto; }
+.site-footer p { margin: 0.35rem 0 0; }
 
 @media (max-width: 520px) {
   .module-header { align-items: flex-start; flex-direction: column; }
