@@ -57,10 +57,11 @@ return [
     'RESEND_API_KEY' => 're_xxx',
     'SOLICITUDES_RETIRO_TO_EMAIL' => 'operaciones@ejemplo.com',
     'SOLICITUDES_RETIRO_FROM_EMAIL' => 'TeCMA <solicitudes@ejemplo.com>',
+    'SOLICITUDES_RETIRO_REPLY_TO_EMAIL' => 'respuestas@ejemplo.com',
 ];
 ```
 
-`SOLICITUDES_RETIRO_FROM_EMAIL` debe ser una dirección remitente verificada en Resend. El correo del cliente solo se usa como `Reply-To`; no debe configurarse como remitente. El servidor debe tener habilitada la extensión cURL. Las órdenes de compra se validan como PDF, se usan únicamente como adjunto del correo interno y se eliminan al finalizar la petición.
+`SOLICITUDES_RETIRO_FROM_EMAIL` debe ser una dirección remitente verificada en Resend. El correo del cliente solo se usa como `Reply-To` del email interno; no debe configurarse como remitente. `SOLICITUDES_RETIRO_REPLY_TO_EMAIL` es una dirección válida y obligatoria para las respuestas a la confirmación que recibe el cliente. El servidor debe tener habilitada la extensión cURL. Las órdenes de compra se validan como PDF, se usan únicamente como adjunto del correo interno y se eliminan al finalizar la petición.
 
 Para generar el hash en un entorno PHP seguro:
 

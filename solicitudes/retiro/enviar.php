@@ -27,13 +27,14 @@ try {
         $datos = retiro_validar_solicitud($_POST);
         $adjunto = retiro_adjunto_oc($_FILES['orden_compra_pdf'] ?? [], $datos['oc']);
         $configuracion = retiro_configuracion();
-        foreach (['RESEND_API_KEY', 'SOLICITUDES_RETIRO_TO_EMAIL', 'SOLICITUDES_RETIRO_FROM_EMAIL'] as $clave) if (!is_string($configuracion[$clave] ?? null) || $configuracion[$clave] === '') throw new RuntimeException('El envío de solicitudes no está configurado.');
+        foreach (['RESEND_API_KEY', 'SOLICITUDES_RETIRO_TO_EMAIL', 'SOLICITUDES_RETIRO_FROM_EMAIL', 'SOLICITUDES_RETIRO_REPLY_TO_EMAIL'] as $clave) if (!is_string($configuracion[$clave] ?? null) || $configuracion[$clave] === '') throw new RuntimeException('El envío de solicitudes no está configurado.');
+        if (!filter_var($configuracion['SOLICITUDES_RETIRO_REPLY_TO_EMAIL'], FILTER_VALIDATE_EMAIL)) throw new RuntimeException('El envío de solicitudes no está configurado.');
         $numero = $formulario['numero']; $fecha = is_string($formulario['fecha'] ?? null) ? $formulario['fecha'] : '';
         if ($fecha === '') throw new InvalidArgumentException('El formulario venció. Recargá la página para generar una nueva solicitud.');
         $interno = ['from'=>$configuracion['SOLICITUDES_RETIRO_FROM_EMAIL'], 'to'=>[$configuracion['SOLICITUDES_RETIRO_TO_EMAIL']], 'reply_to'=>$datos['contacto']['email'], 'subject'=>'Solicitud de retiro '.$numero, 'html'=>retiro_html_email($datos, $numero, $fecha, true)];
         if ($adjunto !== null) $interno['attachments'] = [$adjunto];
         if (!retiro_enviar_resend($configuracion, $interno, 'solicitud-retiro-interna/'.$numero)) throw new RuntimeException('No pudimos registrar la solicitud. Intentá nuevamente más tarde.');
-        $cliente = ['from'=>$configuracion['SOLICITUDES_RETIRO_FROM_EMAIL'], 'to'=>[$datos['contacto']['email']], 'subject'=>'Recibimos tu solicitud de retiro '.$numero, 'html'=>retiro_html_email($datos, $numero, $fecha, false)];
+        $cliente = ['from'=>$configuracion['SOLICITUDES_RETIRO_FROM_EMAIL'], 'to'=>[$datos['contacto']['email']], 'reply_to'=>$configuracion['SOLICITUDES_RETIRO_REPLY_TO_EMAIL'], 'subject'=>'Recibimos tu solicitud de retiro '.$numero, 'html'=>retiro_html_email($datos, $numero, $fecha, false)];
         $copiaEnviada = retiro_enviar_resend($configuracion, $cliente, 'solicitud-retiro-cliente/'.$numero);
         unset($_SESSION['retiro_formularios'][$tokenFormulario]);
         $estadoRespuesta = 200;

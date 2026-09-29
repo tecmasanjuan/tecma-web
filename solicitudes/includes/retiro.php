@@ -33,7 +33,7 @@ function retiro_decimal_no_negativo(mixed $valor, string $etiqueta): string {
 }
 function retiro_configuracion(): array {
     $configuracion = solicitudes_configuracion();
-    foreach (['RESEND_API_KEY', 'SOLICITUDES_RETIRO_TO_EMAIL', 'SOLICITUDES_RETIRO_FROM_EMAIL'] as $clave) {
+    foreach (['RESEND_API_KEY', 'SOLICITUDES_RETIRO_TO_EMAIL', 'SOLICITUDES_RETIRO_FROM_EMAIL', 'SOLICITUDES_RETIRO_REPLY_TO_EMAIL'] as $clave) {
         $entorno = getenv($clave);
         if ($entorno !== false && $entorno !== '') { $configuracion[$clave] = $entorno; }
     }
