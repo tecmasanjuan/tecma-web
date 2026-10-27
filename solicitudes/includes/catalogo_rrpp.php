@@ -30,5 +30,7 @@ function solicitudes_catalogo_rrpp(): array
         'Y48/Y33' => 'Sólidos contaminados con Cianuro', 'Y48/Y34' => 'Sólidos contaminados con Soluciones Ácidas',
         'Y48/Y35' => 'Sólidos contaminados con Soluciones Básicas', 'Y48/Y42' => 'Sólidos contaminados con Disolventes Orgánicos',
         'Y48/Y8' => 'Sólidos contaminados con Hidrocarburo', 'Y48/Y8-Y9' => 'Tierras contaminadas',
+        'Y48/Y4' => 'Sólidos contaminados con Biocidas y Productos Fitosanitarios', 'Y48/Y6' => 'Sólidos contaminados con Disolventes Orgánicos',
+        'Y48/Y4' => 'Tambores/Baldes Metalicos contaminados con Biocidas y Productos Fitosanitarios', 'Y48/Y6' => 'Tambores/Baldes Metalicos contaminados con Disolventes Orgánicos',
     ];
 }
