@@ -67,7 +67,7 @@
   };
   const chooseCategory = (card, value) => {
     const select = card.querySelector('.rrpp-category'); const option = [...select.options].find((item) => item.value === value); if (!option) return;
-    select.value = value; card.querySelector('.rrpp-search').value = option.value; card.querySelector('.rrpp-results').hidden = true; card.querySelector('.rrpp-search').removeAttribute('aria-activedescendant'); updateCategory(card);
+    select.value = value; card.querySelector('.rrpp-search').value = option.textContent; card.querySelector('.rrpp-results').hidden = true; card.querySelector('.rrpp-search').removeAttribute('aria-activedescendant'); updateCategory(card);
   };
   form.addEventListener('input', (event) => {
     const card = event.target.closest('.residuo');
